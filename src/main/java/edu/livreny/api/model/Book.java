@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@Entity (name = "books")
-@Table (name = "books")
-@AllArgsConstructor @NoArgsConstructor
+@Entity(name = "books")
+@Table(name = "books")
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class Book implements Serializable {
     @Id
@@ -21,6 +22,7 @@ public class Book implements Serializable {
     private String author;
     private String isbn;
     private String publisher;
+    @Enumerated(EnumType.STRING)
     private Genre genre;
     public BigDecimal price;
 

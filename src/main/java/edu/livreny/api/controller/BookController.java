@@ -1,13 +1,15 @@
 package edu.livreny.api.controller;
 
 import edu.livreny.api.dtos.BookDto;
+import edu.livreny.api.dtos.BookListDto;
+import edu.livreny.api.dtos.UpdateBookDto;
 import edu.livreny.api.model.Book;
 import edu.livreny.api.repositories.BookRepository;
+import edu.livreny.api.utils.Utils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,7 @@ public class BookController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity registerBook(@RequestBody @Valid BookDto bookDto, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<Object> register(@RequestBody @Valid BookDto bookDto, UriComponentsBuilder uriBuilder) {
 
         Book book = new Book(bookDto);
         repository.save(book);
@@ -33,36 +35,36 @@ public class BookController {
         return ResponseEntity.created(uri).body(book);
     }
 
-//    @GetMapping
-//    public ResponseEntity<Page<TopicListDTO>> list(@PageableDefault(sort = "creationDate", direction = Sort.Direction.ASC) Pageable paginate) {
-//
-//        Page<TopicListDTO> topicList = repository.findAll(paginate).map(TopicListDTO::new);
-//
-//        return ResponseEntity.ok(topicList);
-//    }
-//
-//    @PutMapping
-//    @Transactional
-//    public ResponseEntity update(@RequestBody @Valid UpdateTopicDTO updateTopicDTO) {
-//        Topic topic = repository.getReferenceById(updateTopicDTO.id());
-//        topic.updatePost(updateTopicDTO);
-//
-//        return ResponseEntity.ok(new TopicListDTO(topic));
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    @Transactional
-//    public ResponseEntity delete(@PathVariable Long id) {
-//        Topic topic = repository.getReferenceById(id);
-//        repository.delete(topic);
-//
-//        return ResponseEntity.noContent().build();
-//    }
-//
-//    @GetMapping("/{id}")
-//    @Transactional
-//    public ResponseEntity detail(@PathVariable Long id) {
-//        Topic topic = repository.getReferenceById(id);
-//        return ResponseEntity.ok(new TopicListDTO(topic));
-//    }
+    @GetMapping
+    public ResponseEntity<Page<BookListDto>> list(@PageableDefault(sort = "title") Pageable paginate) {
+
+        Page<BookListDto> bookList = repository.findAll(paginate).map(BookListDto::new);
+
+        return ResponseEntity.ok(bookList);
+    }
+
+    @PutMapping
+    @Transactional
+    public ResponseEntity update(@RequestBody @Valid UpdateBookDto updateBookDto) {
+        Book book = repository.getReferenceById(updateBookDto.id());
+        Utils.copyNonNullProperties(updateBookDto, book);
+
+        return ResponseEntity.ok().body(this.repository.save(book));
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity delete(@PathVariable Long id) {
+        Book book = repository.getReferenceById(id);
+        repository.delete(book);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    @Transactional
+    public ResponseEntity detail(@PathVariable Long id) {
+        Book book = repository.getReferenceById(id);
+        return ResponseEntity.ok(new BookListDto(book));
+    }
 }
